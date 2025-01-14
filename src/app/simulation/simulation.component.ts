@@ -1,14 +1,11 @@
-import { Component } from '@angular/core';
 import {
-  BoxGeometry,
-  Mesh,
-  MeshBasicMaterial,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
-} from 'three/src/Three.js';
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  ViewChild,
+} from '@angular/core';
 import { SimulationService } from '../simulation.service';
-import { Boid } from '../boid';
 
 @Component({
   selector: 'app-simulation',
@@ -16,33 +13,26 @@ import { Boid } from '../boid';
   templateUrl: './simulation.component.html',
   styleUrl: './simulation.component.scss',
 })
-export class SimulationComponent {
-  private boids!: Boid[];
+export class SimulationComponent implements AfterViewInit {
+  @ViewChild('simulation')
+  simulationDiv!: ElementRef;
 
-  constructor(private readonly simulationService: SimulationService) {
-    simulationService.getBoids.subscribe((value) => (this.boids = value));
+  constructor(private readonly simulationService: SimulationService) {}
 
-    // Simulation
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
+  ngAfterViewInit(): void {
+    (this.simulationDiv.nativeElement as HTMLDivElement).appendChild(
+      this.simulationService.getRenderer.domElement,
     );
-    const renderer = new WebGLRenderer();
+  }
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-    renderer.setAnimationLoop(() => {
-      renderer.render(scene, camera);
-    });
-
-    const geometry = new BoxGeometry(1, 1, 1);
-    const material = new MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new Mesh(geometry, material);
-    scene.add(cube);
-
-    camera.position.z = 5;
+  @HostListener('window:resize', ['$event'])
+  simulationResize(event: UIEvent) {
+    const window = event.target as Window;
+    this.simulationService.getCamera.aspect =
+      window.innerWidth / window.innerHeight;
+    this.simulationService.getRenderer.setSize(
+      window.innerWidth,
+      window.innerHeight,
+    );
   }
 }

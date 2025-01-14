@@ -10,17 +10,13 @@ import { SimulationService } from '../simulation.service';
 export class ControlsComponent {
   numberOfBoids = 0;
 
-  constructor(private readonly simulationService: SimulationService) {
-    simulationService.getBoids.subscribe(
-      (value) => (this.numberOfBoids = value.length),
-    );
-  }
+  constructor(private readonly simulationService: SimulationService) {}
 
   addBoid() {
-    this.simulationService.addBoid();
+    this.numberOfBoids = this.simulationService.addBoid();
   }
 
   subtractBoid() {
-    this.simulationService.subtractBoid();
+    this.numberOfBoids = this.simulationService.subtractBoid();
   }
 }

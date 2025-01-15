@@ -22,7 +22,7 @@ export class SimulationService {
     for (let i = 0; i < 10; i++) this.addBoid();
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.camera.position.z = 5;
+    this.camera.position.z = 10;
 
     this.renderer.setAnimationLoop(() => {
       for (const boid of this.boids) boid.move();
@@ -37,8 +37,13 @@ export class SimulationService {
   }
 
   subtractBoid() {
-    this.boids.pop();
+    this.boids[0].remove(this.scene);
+    this.boids.shift();
 
+    return this.boids.length;
+  }
+
+  public get numberOfBoids(): number {
     return this.boids.length;
   }
 

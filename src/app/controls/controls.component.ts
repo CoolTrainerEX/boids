@@ -8,9 +8,11 @@ import { SimulationService } from '../simulation.service';
   styleUrl: './controls.component.scss',
 })
 export class ControlsComponent {
-  numberOfBoids = 0;
+  numberOfBoids;
 
-  constructor(private readonly simulationService: SimulationService) {}
+  constructor(private readonly simulationService: SimulationService) {
+    this.numberOfBoids = simulationService.numberOfBoids;
+  }
 
   addBoid() {
     this.numberOfBoids = this.simulationService.addBoid();

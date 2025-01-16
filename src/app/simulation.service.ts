@@ -25,7 +25,7 @@ export class SimulationService {
     this.camera.position.z = 10;
 
     this.renderer.setAnimationLoop(() => {
-      for (const boid of this.boids) boid.move();
+      for (const boid of this.boids) boid.move(this.boids);
       this.renderer.render(this.scene, this.camera);
     });
   }

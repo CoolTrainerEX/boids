@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Boid } from './boid';
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three/src/Three.js';
+import {
+  Color,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+} from 'three/src/Three.js';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +26,7 @@ export class SimulationService {
   constructor() {
     for (let i = 0; i < 10; i++) this.addBoid();
 
+    this.scene.background = new Color(Color.NAMES.lightblue);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.camera.position.z = 10;
 

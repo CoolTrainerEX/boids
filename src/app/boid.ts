@@ -10,6 +10,7 @@ import {
 } from 'three/src/Three.Core.js';
 
 export class Boid {
+  private static readonly spread = 5;
   private static readonly speed = 0.01;
 
   readonly mesh = new Mesh(
@@ -19,9 +20,9 @@ export class Boid {
 
   constructor(scene: Scene) {
     this.mesh.position.set(
-      randFloat(-5, 5),
-      randFloat(-5, 5),
-      randFloat(-5, 5),
+      randFloat(-Boid.spread, Boid.spread),
+      randFloat(-Boid.spread, Boid.spread),
+      randFloat(-Boid.spread, Boid.spread),
     );
     this.mesh.setRotationFromQuaternion(new Quaternion().random());
 
@@ -38,7 +39,8 @@ export class Boid {
     const refObj = new Object3D();
     refObj.position.set(...this.mesh.position.toArray());
     refObj.lookAt(avgPos);
+    refObj.rotateX(Math.PI / 2);
 
-    return refObj.getWorldQuaternion(new Quaternion());
+    return refObj.quaternion;
   }
 }

@@ -2,12 +2,9 @@ import { Injectable } from '@angular/core';
 import { Boid } from './boid';
 import {
   Color,
-  Mesh,
-  MeshBasicMaterial,
   PerspectiveCamera,
   Quaternion,
   Scene,
-  SphereGeometry,
   Vector3,
   WebGLRenderer,
 } from 'three/src/Three.js';
@@ -16,6 +13,8 @@ import {
   providedIn: 'root',
 })
 export class SimulationService {
+  static readonly initialNumberofBoids = 50;
+
   private readonly boids: Boid[] = [];
 
   private readonly scene = new Scene();
@@ -29,29 +28,19 @@ export class SimulationService {
   private readonly renderer = new WebGLRenderer();
 
   constructor() {
-    for (let i = 0; i < 20; i++) this.addBoid();
+    for (let i = 0; i < SimulationService.initialNumberofBoids; i++)
+      this.addBoid();
 
     this.scene.background = new Color(Color.NAMES.lightblue);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const avgPosMesh = new Mesh(
-      new SphereGeometry(1),
-      new MeshBasicMaterial({ color: 'red' }),
-    );
-
-    this.scene.add(avgPosMesh);
-
     this.renderer.setAnimationLoop(() => {
       const avgRot = SimulationService.avgQuaternion(
-          ...this.boids.map((value) =>
-            value.mesh.getWorldQuaternion(new Quaternion()),
-          ),
+          ...this.boids.map((value) => value.mesh.quaternion),
         ),
         avgPos = SimulationService.avgVector3(
           ...this.boids.map((value) => value.mesh.position),
         );
-
-      avgPosMesh.position.set(...avgPos.toArray());
 
       for (const boid of this.boids)
         boid.rotate(
@@ -78,10 +67,6 @@ export class SimulationService {
     this.scene.remove(this.boids[0].mesh);
     this.boids.shift();
 
-    return this.boids.length;
-  }
-
-  public get numberOfBoids(): number {
     return this.boids.length;
   }
 

@@ -11,7 +11,7 @@ export class ControlsComponent {
   numberOfBoids;
 
   constructor(private readonly simulationService: SimulationService) {
-    this.numberOfBoids = simulationService.numberOfBoids;
+    this.numberOfBoids = SimulationService.initialNumberofBoids;
   }
 
   addBoid() {

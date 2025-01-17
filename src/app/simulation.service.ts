@@ -24,11 +24,11 @@ export class SimulationService {
   private readonly renderer = new WebGLRenderer();
 
   constructor() {
-    for (let i = 0; i < 10; i++) this.addBoid();
+    for (let i = 0; i < 20; i++) this.addBoid();
 
     this.scene.background = new Color(Color.NAMES.lightblue);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.camera.position.z = 10;
+    this.camera.position.z = 20;
 
     this.renderer.setAnimationLoop(() => {
       for (const boid of this.boids) boid.move(this.boids);

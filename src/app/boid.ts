@@ -10,33 +10,33 @@ import {
 } from 'three/src/Three.Core.js';
 
 export class Boid {
-  private static readonly speed = 0.01;
+  private static readonly speed = 0.05;
 
-  private rotation = new Quaternion().random();
   private readonly mesh = new Mesh(
     new ConeGeometry(0.25, 1),
     new MeshBasicMaterial({ color: 'gray' }),
   );
 
   constructor(scene: Scene) {
-    this.mesh.position.setScalar(randFloat(-5, 5));
-    this.mesh.setRotationFromQuaternion(this.rotation);
+    this.mesh.position.set(
+      randFloat(-5, 5),
+      randFloat(-5, 5),
+      randFloat(-5, 5),
+    );
+    this.mesh.setRotationFromQuaternion(new Quaternion().random());
 
     scene.add(this.mesh);
   }
 
-  public get getRotation(): Quaternion {
-    return this.rotation;
-  }
-
   move(boids: Boid[]) {
-    this.rotation = Boid.avgQuaternion(
-      // this.calculateSeparation(boids),
-      this.calculateAlignment(boids),
-      this.calculateCohesion(boids),
+    this.mesh.quaternion.slerp(
+      Boid.avgQuaternion(
+        // this.calculateSeparation(boids),
+        this.calculateAlignment(boids),
+        this.calculateCohesion(boids),
+      ),
+      Boid.speed,
     );
-
-    this.mesh.quaternion.slerp(this.rotation, Boid.speed);
     this.mesh.translateOnAxis(this.mesh.up, Boid.speed);
   }
 
@@ -49,11 +49,7 @@ export class Boid {
   }
 
   calculateAlignment(boids: Boid[]) {
-    const quaternions: Quaternion[] = [];
-
-    for (const boid of boids) quaternions.push(boid.mesh.quaternion);
-
-    return Boid.avgQuaternion(...quaternions);
+    return Boid.avgQuaternion(...boids.map((value) => value.mesh.quaternion));
   }
 
   calculateCohesion(boids: Boid[]) {

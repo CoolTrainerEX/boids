@@ -39,6 +39,6 @@ export class Boid {
     refObj.position.set(...this.mesh.position.toArray());
     refObj.lookAt(avgPos);
 
-    return refObj.quaternion;
+    return refObj.getWorldQuaternion(new Quaternion());
   }
 }

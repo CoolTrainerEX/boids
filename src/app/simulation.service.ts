@@ -43,7 +43,9 @@ export class SimulationService {
 
     this.renderer.setAnimationLoop(() => {
       const avgRot = SimulationService.avgQuaternion(
-          ...this.boids.map((value) => value.mesh.quaternion),
+          ...this.boids.map((value) =>
+            value.mesh.getWorldQuaternion(new Quaternion()),
+          ),
         ),
         avgPos = SimulationService.avgVector3(
           ...this.boids.map((value) => value.mesh.position),

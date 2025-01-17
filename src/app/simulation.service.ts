@@ -3,7 +3,9 @@ import { Boid } from './boid';
 import {
   Color,
   PerspectiveCamera,
+  Quaternion,
   Scene,
+  Vector3,
   WebGLRenderer,
 } from 'three/src/Three.js';
 
@@ -31,7 +33,21 @@ export class SimulationService {
     this.camera.position.z = 20;
 
     this.renderer.setAnimationLoop(() => {
-      for (const boid of this.boids) boid.move(this.boids);
+      const avgRot = SimulationService.avgQuaternion(
+          ...this.boids.map((value) => value.mesh.quaternion),
+        ),
+        avgPos = SimulationService.avgVector3(
+          ...this.boids.map((value) => value.mesh.position),
+        );
+
+      for (const boid of this.boids)
+        boid.rotate(
+          SimulationService.avgQuaternion(
+            new Quaternion(),
+            avgRot,
+            boid.calculateCohesion(avgPos),
+          ),
+        );
       this.renderer.render(this.scene, this.camera);
     });
   }
@@ -43,7 +59,7 @@ export class SimulationService {
   }
 
   subtractBoid() {
-    this.boids[0].remove(this.scene);
+    this.scene.remove(this.boids[0].mesh);
     this.boids.shift();
 
     return this.boids.length;
@@ -59,5 +75,32 @@ export class SimulationService {
 
   public get getRenderer(): WebGLRenderer {
     return this.renderer;
+  }
+
+  static avgVector3(...vectors: Vector3[]) {
+    const result = new Vector3(0, 0, 0);
+
+    for (const vector of vectors) result.add(vector);
+    result.divideScalar(vectors.length);
+
+    return result;
+  }
+
+  static avgQuaternion(...quaternions: Quaternion[]) {
+    const result = new Quaternion(0, 0, 0, 0);
+
+    for (const quaternion of quaternions) {
+      result.x += quaternion.x;
+      result.y += quaternion.y;
+      result.z += quaternion.z;
+      result.w += quaternion.w;
+    }
+
+    result.x /= quaternions.length;
+    result.y /= quaternions.length;
+    result.z /= quaternions.length;
+    result.w /= quaternions.length;
+
+    return result;
   }
 }

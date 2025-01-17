@@ -8,11 +8,12 @@ import {
   Scene,
   Vector3,
 } from 'three/src/Three.Core.js';
+import { SimulationService } from './simulation.service';
 
 export class Boid {
-  private static readonly speed = 0.05;
+  private static readonly speed = 0.01;
 
-  private readonly mesh = new Mesh(
+  readonly mesh = new Mesh(
     new ConeGeometry(0.25, 1),
     new MeshBasicMaterial({ color: 'gray' }),
   );
@@ -28,58 +29,19 @@ export class Boid {
     scene.add(this.mesh);
   }
 
-  move(boids: Boid[]) {
+  rotate(rotation: Quaternion) {
     this.mesh.quaternion.slerp(
-      Boid.avgQuaternion(
-        // this.calculateSeparation(boids),
-        this.calculateAlignment(boids),
-        this.calculateCohesion(boids),
-      ),
+      SimulationService.avgQuaternion(rotation),
       Boid.speed,
     );
     this.mesh.translateOnAxis(this.mesh.up, Boid.speed);
   }
 
-  remove(scene: Scene) {
-    scene.remove(this.mesh);
-  }
-
-  calculateSeparation(boids: Boid[]) {
-    return new Quaternion(0, 0, 0, 0);
-  }
-
-  calculateAlignment(boids: Boid[]) {
-    return Boid.avgQuaternion(...boids.map((value) => value.mesh.quaternion));
-  }
-
-  calculateCohesion(boids: Boid[]) {
-    const avgPos = new Vector3(0, 0, 0);
-
-    for (const boid of boids) avgPos.add(boid.mesh.position);
-    avgPos.divideScalar(boids.length);
-
+  calculateCohesion(avgPos: Vector3) {
     const refObj = new Object3D();
     refObj.position.set(...this.mesh.position.toArray());
     refObj.lookAt(avgPos);
 
     return refObj.quaternion;
-  }
-
-  static avgQuaternion(...quaternions: Quaternion[]) {
-    const result = new Quaternion(0, 0, 0, 0);
-
-    for (const quaternion of quaternions) {
-      result.x += quaternion.x;
-      result.y += quaternion.y;
-      result.z += quaternion.z;
-      result.w += quaternion.w;
-    }
-
-    result.x /= quaternions.length;
-    result.y /= quaternions.length;
-    result.z /= quaternions.length;
-    result.w /= quaternions.length;
-
-    return result;
   }
 }

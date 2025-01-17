@@ -2,9 +2,12 @@ import { Injectable } from '@angular/core';
 import { Boid } from './boid';
 import {
   Color,
+  Mesh,
+  MeshBasicMaterial,
   PerspectiveCamera,
   Quaternion,
   Scene,
+  SphereGeometry,
   Vector3,
   WebGLRenderer,
 } from 'three/src/Three.js';
@@ -30,7 +33,13 @@ export class SimulationService {
 
     this.scene.background = new Color(Color.NAMES.lightblue);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.camera.position.z = 20;
+
+    const avgPosMesh = new Mesh(
+      new SphereGeometry(1),
+      new MeshBasicMaterial({ color: 'red' }),
+    );
+
+    this.scene.add(avgPosMesh);
 
     this.renderer.setAnimationLoop(() => {
       const avgRot = SimulationService.avgQuaternion(
@@ -40,14 +49,19 @@ export class SimulationService {
           ...this.boids.map((value) => value.mesh.position),
         );
 
+      avgPosMesh.position.set(...avgPos.toArray());
+
       for (const boid of this.boids)
         boid.rotate(
           SimulationService.avgQuaternion(
-            new Quaternion(),
+            // new Quaternion(),
             avgRot,
             boid.calculateCohesion(avgPos),
           ),
         );
+
+      this.camera.position.set(...avgPos.toArray());
+      this.camera.translateZ(20);
       this.renderer.render(this.scene, this.camera);
     });
   }
@@ -77,7 +91,7 @@ export class SimulationService {
     return this.renderer;
   }
 
-  static avgVector3(...vectors: Vector3[]) {
+  private static avgVector3(...vectors: Vector3[]) {
     const result = new Vector3(0, 0, 0);
 
     for (const vector of vectors) result.add(vector);
@@ -86,7 +100,7 @@ export class SimulationService {
     return result;
   }
 
-  static avgQuaternion(...quaternions: Quaternion[]) {
+  private static avgQuaternion(...quaternions: Quaternion[]) {
     const result = new Quaternion(0, 0, 0, 0);
 
     for (const quaternion of quaternions) {

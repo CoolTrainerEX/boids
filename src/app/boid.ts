@@ -8,7 +8,6 @@ import {
   Scene,
   Vector3,
 } from 'three/src/Three.Core.js';
-import { SimulationService } from './simulation.service';
 
 export class Boid {
   private static readonly speed = 0.01;
@@ -30,10 +29,8 @@ export class Boid {
   }
 
   rotate(rotation: Quaternion) {
-    this.mesh.quaternion.slerp(
-      SimulationService.avgQuaternion(rotation),
-      Boid.speed,
-    );
+    this.mesh.quaternion.slerp(rotation, Boid.speed);
+    // this.mesh.quaternion.set(...rotation.toArray());
     this.mesh.translateOnAxis(this.mesh.up, Boid.speed);
   }
 
